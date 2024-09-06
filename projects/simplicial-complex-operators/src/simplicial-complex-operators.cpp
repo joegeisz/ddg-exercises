@@ -57,17 +57,20 @@ void SimplicialComplexOperators::assignElementIndices() {
  */
 SparseMatrix<size_t> SimplicialComplexOperators::buildVertexEdgeAdjacencyMatrix() const {
 
-    // TODO
     // Note: You can build an Eigen sparse matrix from triplets, then return it as a Geometry Central SparseMatrix.
     // See <https://eigen.tuxfamily.org/dox/group__TutorialSparse.html> for documentation.
-    std::cout << "hello check";
+    int E = mesh->nEdges();
+    int V = mesh->nVertices();
     SparseMatrix<size_t> mat(E,V);
     mat.reserve(E*2);
     for(Edge e : mesh->edges()) {
-	    mat.insert(a,b) = 1;
+	    int a = e.firstVertex().getIndex();
+	    int b = e.secondVertex().getIndex();
+	    int e_index = e.getIndex();
+	    mat.insert(e_index,a) = 1;
+	    mat.insert(e_index,b) = 1;
     }
-    mat.makeCompressed();
-    return identityMatrix<size_t>(1); // placeholder
+    return mat;
 }
 
 /*
@@ -78,8 +81,18 @@ SparseMatrix<size_t> SimplicialComplexOperators::buildVertexEdgeAdjacencyMatrix(
  */
 SparseMatrix<size_t> SimplicialComplexOperators::buildFaceEdgeAdjacencyMatrix() const {
 
-    // TODO
-    return identityMatrix<size_t>(1); // placeholder
+    int F = mesh->nFaces();
+    int E = mesh->nEdges();
+    SparseMatrix<size_t> mat(F,E);
+    mat.reserve(F*3);
+    for(Face f : mesh->faces()) {
+	    int fi = f.getIndex();
+	    for( Edge e : f.adjacentEdges()) {
+		    int ei = e.getIndex();
+		    mat.insert(fi, ei) = 1;
+	    }
+    }
+    return mat;
 }
 
 /*
