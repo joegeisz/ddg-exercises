@@ -60,7 +60,13 @@ SparseMatrix<size_t> SimplicialComplexOperators::buildVertexEdgeAdjacencyMatrix(
     // TODO
     // Note: You can build an Eigen sparse matrix from triplets, then return it as a Geometry Central SparseMatrix.
     // See <https://eigen.tuxfamily.org/dox/group__TutorialSparse.html> for documentation.
-
+    std::cout << "hello check";
+    SparseMatrix<size_t> mat(E,V);
+    mat.reserve(E*2);
+    for(Edge e : mesh->edges()) {
+	    mat.insert(a,b) = 1;
+    }
+    mat.makeCompressed();
     return identityMatrix<size_t>(1); // placeholder
 }
 
