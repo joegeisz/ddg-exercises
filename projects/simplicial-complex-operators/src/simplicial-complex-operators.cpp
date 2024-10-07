@@ -148,8 +148,35 @@ Vector<size_t> SimplicialComplexOperators::buildFaceVector(const MeshSubset& sub
  */
 MeshSubset SimplicialComplexOperators::star(const MeshSubset& subset) const {
 
-    // TODO
-    return subset; // placeholder
+    MeshSubset star;
+    std::cout << "test1" << std::endl;
+    Vector<size_t> V = buildVertexVector(subset);
+    Vector<size_t> E = buildEdgeVector(subset);
+    Vector<size_t> F = buildFaceVector(subset);
+    std::cout << "test2" << std::endl;
+    E = E + this->A0*V;
+    F = F + this->A1*E + this->A1*this->A0*V;
+    std::cout << "test3" << std::endl;
+    for(size_t i = 0; i < mesh->nVertices(); i++){
+	if(V[i] != 0){
+	    star.addVertex(i);
+	}
+    }
+    std::cout << "test4" << std::endl;
+    for(size_t i = 0; i < mesh->nEdges(); i++){
+	if(E[i] != 0){
+	    star.addEdge(i);
+	}
+    }
+    std::cout << "test5" << std::endl;
+    for(size_t i = 0; i < mesh->nFaces(); i++){
+	if(F[i] != 0){
+	    star.addFace(i);
+	}
+    }
+    std::cout << "test6" << std::endl;
+    return star; 
+
 }
 
 
