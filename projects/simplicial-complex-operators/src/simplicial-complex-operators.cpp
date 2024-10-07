@@ -149,32 +149,26 @@ Vector<size_t> SimplicialComplexOperators::buildFaceVector(const MeshSubset& sub
 MeshSubset SimplicialComplexOperators::star(const MeshSubset& subset) const {
 
     MeshSubset star;
-    std::cout << "test1" << std::endl;
     Vector<size_t> V = buildVertexVector(subset);
     Vector<size_t> E = buildEdgeVector(subset);
     Vector<size_t> F = buildFaceVector(subset);
-    std::cout << "test2" << std::endl;
     E = E + this->A0*V;
     F = F + this->A1*E + this->A1*this->A0*V;
-    std::cout << "test3" << std::endl;
     for(size_t i = 0; i < mesh->nVertices(); i++){
 	if(V[i] != 0){
 	    star.addVertex(i);
 	}
     }
-    std::cout << "test4" << std::endl;
     for(size_t i = 0; i < mesh->nEdges(); i++){
 	if(E[i] != 0){
 	    star.addEdge(i);
 	}
     }
-    std::cout << "test5" << std::endl;
     for(size_t i = 0; i < mesh->nFaces(); i++){
 	if(F[i] != 0){
 	    star.addFace(i);
 	}
     }
-    std::cout << "test6" << std::endl;
     return star; 
 
 }
@@ -188,8 +182,29 @@ MeshSubset SimplicialComplexOperators::star(const MeshSubset& subset) const {
  */
 MeshSubset SimplicialComplexOperators::closure(const MeshSubset& subset) const {
 
-    // TODO
-    return subset; // placeholder
+    MeshSubset star;
+    Vector<size_t> V = buildVertexVector(subset);
+    Vector<size_t> E = buildEdgeVector(subset);
+    Vector<size_t> F = buildFaceVector(subset);
+    V = V + this->A0.transpose()*E + this->A0.transpose()*this->A1.transpose()*F;
+    E = E + this->A1.transpose()*F;
+    for(size_t i = 0; i < mesh->nVertices(); i++){
+	if(V[i] != 0){
+	    star.addVertex(i);
+	}
+    }
+    for(size_t i = 0; i < mesh->nEdges(); i++){
+	if(E[i] != 0){
+	    star.addEdge(i);
+	}
+    }
+    for(size_t i = 0; i < mesh->nFaces(); i++){
+	if(F[i] != 0){
+	    star.addFace(i);
+	}
+    }
+    return star; 
+
 }
 
 /*
@@ -200,9 +215,23 @@ MeshSubset SimplicialComplexOperators::closure(const MeshSubset& subset) const {
  */
 MeshSubset SimplicialComplexOperators::link(const MeshSubset& subset) const {
 
-    // TODO
-    return subset; // placeholder
+    MeshSubset st = star(subset);
+    MeshSubset cl = closure(subset);
+    MeshSubset stcl = star(cl);
+    MeshSubset clst = closure(st);
+    MeshSubset link(clst.vertices,clst.edges,clst.faces);
+    for(size_t v: stcl.vertices){
+	link.deleteVertex(v);
+    }
+    for(size_t e: stcl.edges){
+	link.deleteEdge(e);
+    }
+    for(size_t f: stcl.faces){
+	link.deleteFace(f);
+    }
+    return link;
 }
+
 
 /*
  * Return true if the selected subset is a simplicial complex, false otherwise.
@@ -212,7 +241,10 @@ MeshSubset SimplicialComplexOperators::link(const MeshSubset& subset) const {
  */
 bool SimplicialComplexOperators::isComplex(const MeshSubset& subset) const {
 
-    // TODO
+    MeshSubset cl = closure(subset);
+    if(cl.vertices == subset.vertices && cl.edges == subset.edges && cl.faces == subset.faces){
+	return true;
+    }
     return false; // placeholder
 }
 
@@ -225,7 +257,10 @@ bool SimplicialComplexOperators::isComplex(const MeshSubset& subset) const {
  */
 int SimplicialComplexOperators::isPureComplex(const MeshSubset& subset) const {
 
-    // TODO
+    if(!isComplex(subset)){
+	return -1;
+    }
+    //else if(
     return -1; // placeholder
 }
 
